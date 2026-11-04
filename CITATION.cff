@@ -4,7 +4,7 @@ title: "hg008-reference-comparison"
 abstract: "Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads"
 type: software
 authors:
-  - given-names: "Mohiraa_Shafreen"
+  - given-names: "Mohiraa Shafreen"
     family-names: "M"
     email: "mohiraa.shafreen@mbzuai.ac.ae"
     orcid: "https://orcid.org/0009-0001-8445-6317"

@@ -3,7 +3,7 @@
 [workspace]
 name = "hg008-reference-comparison"
 description = "Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads"
-authors = ["Mohiraa_Shafreen M <mohiraa.shafreen@mbzuai.ac.ae>"]
+authors = ["Mohiraa Shafreen M <mohiraa.shafreen@mbzuai.ac.ae>"]
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 version = "0.1.0"
