@@ -10,6 +10,7 @@
 #SBATCH --time=04:00:00
 #SBATCH --output=results/logs/%x_%j.out
 set -euo pipefail
+ulimit -n $(ulimit -Hn)
 
 P=$(pwd -P)
 RUN="pixi run --frozen -e pipeline"
