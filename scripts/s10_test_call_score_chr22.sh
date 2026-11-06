@@ -41,7 +41,7 @@ $RUN gatk FilterMutectCalls -R $REF -V $OUT/mutect2_raw.vcf.gz -O $OUT/mutect2.v
 awk '$1=="chr22"' $TRUTH_BED > $OUT/benchmark_chr22.bed
 echo "chr22 benchmark regions: $(wc -l < $OUT/benchmark_chr22.bed)"
 echo "chr22 truth variants: $(zcat $TRUTH | grep -c '^chr22' || true)"
-echo "first truth records:"; zcat $TRUTH | grep -v '^#' | head -3
+echo "first truth records:"; zcat $TRUTH | grep -v '^#' | head -3 || true
 
 # 4. RTG's reference format (made once, reused later)
 [ -d $SDF ] || $RUN rtg format -o $SDF $REF
