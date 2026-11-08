@@ -1185,6 +1185,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uri-template-1.3.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/bioconda/linux-64/vg-1.76.1-h9ee0642_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/wayland-1.26.0-hc1c935e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/wcwidth-0.9.4-py311hd139983_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/webcolors-25.10.0-pyhd8ed1ab_0.conda
@@ -8852,6 +8853,13 @@ packages:
   license_family: Proprietary
   size: 155686
   timestamp: 1793305669217
+- conda: https://conda.anaconda.org/bioconda/linux-64/vg-1.76.1-h9ee0642_0.conda
+  sha256: 02d1f2aa416a9196c7f348b7ff4d679f256f618b1265d2104459b4c8200891dd
+  md5: 9b71bc9c9d008a8ebff8e914d9c07ee9
+  license: MIT
+  license_family: MIT
+  size: 15798627
+  timestamp: 1786362775077
 - conda: https://conda.anaconda.org/conda-forge/linux-64/wayland-1.26.0-hc1c935e_2.conda
   sha256: df65b987979e6d7f88e756494da5a230d4f2d08d17437d04eecd35559c3a04e4
   md5: 88a47e22b53e50865b1cabe2eb648352

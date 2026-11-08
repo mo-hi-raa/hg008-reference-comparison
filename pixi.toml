@@ -34,5 +34,8 @@ gatk4 = ">=4.6.2.0,<5"
 rtg-tools = ">=3.13,<4"
 aardvark = ">=1.1.0,<2"
 
+[feature.pipeline.target.linux-64.dependencies]
+vg = ">=1.76.1,<2"
+
 [environments]
 pipeline = ["pipeline"]
