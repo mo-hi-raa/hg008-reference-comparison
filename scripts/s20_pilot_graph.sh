@@ -34,7 +34,7 @@ if grep -qiw "HG008" $OUT/graph_samples.txt; then echo "WARNING: HG008 IS in the
 for s in T N; do
   if [ $s = T ]; then SM=HG008-T; else SM=HG008-N-D; fi
   $RUN vg giraffe -t 16 -Z $G.gbz -d $G.dist -m $G.shortread.withzip.min -z $G.shortread.zipcodes \
-    -f $IN/${s}_R1.fastq.gz -f $IN/${s}_R2.fastq.gz -N $SM -R ${SM}_test -o BAM > $OUT/${s}.unsorted.bam
+    -f $IN/${s}_R1.fastq.gz -f $IN/${s}_R2.fastq.gz -N $SM -R ${SM}_test --ref-paths metadata/chm13_ref_paths.txt -o BAM > $OUT/${s}.unsorted.bam
   $RUN samtools sort -@ 4 -o $OUT/${SM}_graph_test.bam $OUT/${s}.unsorted.bam
   $RUN samtools index $OUT/${SM}_graph_test.bam
   $RUN samtools flagstat $OUT/${SM}_graph_test.bam > $OUT/${SM}_graph_test.flagstat.txt

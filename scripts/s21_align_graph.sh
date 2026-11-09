@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Align the BCM 2024 Illumina reads to the HPRC v2.1 CHM13-based graph (giraffe).
 # Same structure as s08: task 1 = normal; tasks 2-5 = the 4 tumour FASTQ pairs.
-# giraffe surjects each read onto CHM13 (-o BAM); fixmate -m prepares for markdup.
+# giraffe surjects each read onto CHM13 (--ref-paths metadata/chm13_ref_paths.txt -o BAM); fixmate -m prepares for markdup.
 # Run from the project folder with: sbatch scripts/s21_align_graph.sh
 #SBATCH --job-name=align_graph
 #SBATCH --partition=cpu
@@ -30,6 +30,6 @@ echo "task $SLURM_ARRAY_TASK_ID: sample $SM, read group $ID"
 
 $RUN vg giraffe -t $((SLURM_CPUS_PER_TASK - 2)) -Z $G.gbz -d $G.dist \
   -m $G.shortread.withzip.min -z $G.shortread.zipcodes \
-  -f $READS/$r1 -f $READS/$r2 -N $SM -R $ID -o BAM \
+  -f $READS/$r1 -f $READS/$r2 -N $SM -R $ID --ref-paths metadata/chm13_ref_paths.txt -o BAM \
   | $RUN samtools fixmate -m -@ 2 - $OUT/${SM}_${ID}.bam
 echo "done: $OUT/${SM}_${ID}.bam"
