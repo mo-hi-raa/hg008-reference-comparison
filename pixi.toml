@@ -35,7 +35,7 @@ rtg-tools = ">=3.13,<4"
 aardvark = ">=1.1.0,<2"
 
 [feature.pipeline.target.linux-64.dependencies]
-vg = ">=1.76.1,<2"
+vg = ">=1.70,<1.73"
 
 [environments]
 pipeline = ["pipeline"]
