@@ -9,9 +9,21 @@ set -euo pipefail
 cd "$SLURM_SUBMIT_DIR"
 RUN="pixi run --frozen -e pipeline"
 G=data/raw/graph/hprc-v2.1-mc-chm13/hprc-v2.1-mc-chm13.d46
+READS=data/raw/reads/BCM_Illumina-WGS_20240313
 IN=results/test_grch38
 OUT=results/pilot_graph
-mkdir -p "$OUT"
+mkdir -p "$IN" "$OUT"
+
+# 0. Make the test reads if they are not here (same first 2M pairs as s06)
+LINES=8000000
+make_test() { (zcat "$READS/$1" | head -n $LINES || true) | gzip > "$IN/$2"; }
+if [ ! -f $IN/T_R1.fastq.gz ]; then
+  make_test HG008-T_fastqs/HJVHNDSX7-1-IDUDI0031_S12_L001_R1_001.fastq.gz T_R1.fastq.gz
+  make_test HG008-T_fastqs/HJVHNDSX7-1-IDUDI0031_S12_L001_R2_001.fastq.gz T_R2.fastq.gz
+  make_test HG008-N-D_fastqs/HV5TMDSX7-1-IDUDI0034_S1_L001_R1_001.fastq.gz N_R1.fastq.gz
+  make_test HG008-N-D_fastqs/HV5TMDSX7-1-IDUDI0034_S1_L001_R2_001.fastq.gz N_R2.fastq.gz
+fi
+echo "test reads ready: $(zcat $IN/T_R1.fastq.gz | wc -l) lines in T_R1"
 
 # 1. Who is in the graph? Is HG008 there?
 $RUN vg paths -M -x $G.gbz | cut -f3 | sort -u > $OUT/graph_samples.txt
