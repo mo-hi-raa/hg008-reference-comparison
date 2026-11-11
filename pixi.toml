@@ -36,6 +36,8 @@ aardvark = ">=1.1.0,<2"
 
 [feature.pipeline.target.linux-64.dependencies]
 vg = ">=1.70,<1.73"
+minimap2 = ">=2.31,<3"
+k8 = ">=1.2,<2"
 
 [environments]
 pipeline = ["pipeline"]
