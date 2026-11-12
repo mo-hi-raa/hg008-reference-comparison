@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# DSA pilot scoring (Way B, haplotype-agnostic): twin truth, V3 hap1+hap2 merge,
-# rtg vcfeval per version and caller, counted with each mutation once.
+# DSA pilot scoring (Way B): twin truth, V3 hap1+hap2 merge, vcfeval, each mutation counted once.
+# VCFs compressed with bgzip and indexed with tabix (GATK SortVcf refuses the NIST truth header).
 # Usage: sbatch scripts/s29_pilot_dsa_score.sh dsa_pilot_chr10 chr10
 #SBATCH --job-name=pilot_dsa_score
 #SBATCH --partition=cpu
@@ -18,17 +18,24 @@ C=$P/results/$PILOT/calls
 SDF=$D/HG008N_v6.3.sdf
 [ -d $SDF ] || $RUN rtg format -o $SDF $D/HG008N_v6.3.fasta
 python3 -I $P/scripts/pilot_lift.py $E $CHR
-$RUN gatk SortVcf -I $E/truth_twins.vcf -O $E/truth_twins.vcf.gz -SD $D/HG008N_v6.3.dict --CREATE_INDEX true
+rm -f $E/truth_twins.vcf.gz $E/truth_twins.vcf.gz.tbi
+$RUN bgzip -f $E/truth_twins.vcf
+$RUN tabix -p vcf $E/truth_twins.vcf.gz
 for V in V1 V2 V3; do
   for CALLER in deepsomatic mutect2; do
     if [ $V = V3 ]; then
-      mkdir -p $C/V3/$CALLER
-      { zcat $C/V3hap1/$CALLER/pass.vcf.gz; zcat $C/V3hap2/$CALLER/pass.vcf.gz | grep -v '^#' || true; } > $C/V3/$CALLER/pass_merged.vcf
-      $RUN gatk SortVcf -I $C/V3/$CALLER/pass_merged.vcf -O $C/V3/$CALLER/pass.vcf.gz -SD $D/HG008N_v6.3.dict --CREATE_INDEX true
+      M=$C/V3/$CALLER; mkdir -p $M; rm -f $M/pass_merged.vcf.gz $M/pass_merged.vcf.gz.tbi
+      A=$C/V3hap1/$CALLER/pass.vcf.gz; B=$C/V3hap2/$CALLER/pass.vcf.gz
+      { zcat $A | grep '^##' || true; zcat $B | grep '^##contig' || true; zcat $A | grep '^#CHROM' || true
+        zcat $A | grep -v '^#' || true; zcat $B | grep -v '^#' || true; } > $M/pass_merged.vcf
+      $RUN bgzip -f $M/pass_merged.vcf
+      $RUN tabix -p vcf $M/pass_merged.vcf.gz
+      CALLS=$M/pass_merged.vcf.gz
+    else
+      CALLS=$C/$V/$CALLER/pass.vcf.gz
     fi
     O=$E/vcfeval_${V}_$CALLER; rm -rf $O
-    if $RUN rtg vcfeval -b $E/truth_twins.vcf.gz -c $C/$V/$CALLER/pass.vcf.gz -t $SDF \
-         --bed-regions $E/eval.bed --squash-ploidy --sample TRUTH,HG008-T -o $O > $O.log 2>&1; then
+    if $RUN rtg vcfeval -b $E/truth_twins.vcf.gz -c $CALLS -t $SDF --bed-regions $E/eval.bed --squash-ploidy --sample TRUTH,HG008-T -o $O > $O.log 2>&1; then
       python3 -I $P/scripts/pilot_count.py $O "$CHR $V $CALLER"
     else
       echo "vcfeval FAILED: $CHR $V $CALLER"; tail -n 5 $O.log
