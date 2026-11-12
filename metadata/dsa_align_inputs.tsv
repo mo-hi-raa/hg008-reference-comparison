@@ -1,0 +1,12 @@
+HG008-T	data/raw/reads/BCM_Illumina-WGS_20240313/HG008-T_fastqs/HJVHNDSX7-1-IDUDI0031_S12_L001_R1_001.fastq.gz
+HG008-T	data/raw/reads/BCM_Illumina-WGS_20240313/HG008-T_fastqs/HM22JDSX7-2-IDUDI0031_S12_L002_R1_001.fastq.gz
+HG008-T	data/raw/reads/BCM_Illumina-WGS_20240313/HG008-T_fastqs/HM2CNDSX7-2-IDUDI0031_S26_L002_R1_001.fastq.gz
+HG008-T	data/raw/reads/BCM_Illumina-WGS_20240313/HG008-T_fastqs/HVWWFDSX7-2-IDUDI0031_S138_L002_R1_001.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part00_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part01_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part02_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part03_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part04_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part05_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part06_R1.fastq.gz
+HG008-N-D	data/processed/normal_chunks/HV5TMDSX7-1-IDUDI0034_S1_L001_part07_R1.fastq.gz
