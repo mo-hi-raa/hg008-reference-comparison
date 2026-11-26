@@ -15,7 +15,7 @@ REF = f"{OUT}/reference/{PIECE}.fa"
 
 rule all:
     input:
-        f"{OUT}/comparison/summary.tsv",
+        f"{OUT}/report/capstone-report.html",
 
 
 # Step 1: fetch the test data from NIST (runs only if files are missing)
@@ -134,3 +134,20 @@ rule compare:
     shell:
         "python scripts/compare_calls.py {input.calls} {input.known} {input.trusted} "
         "{params.region} {params.outdir}"
+
+
+# Step 7: render the report (Quarto). Every number is computed when it renders.
+rule report:
+    input:
+        qmd="reports/capstone-report.qmd",
+        summary=f"{OUT}/comparison/summary.tsv",
+        table=f"{OUT}/comparison/comparison.tsv",
+        filtered=f"{OUT}/calls/filtered.vcf.gz",
+    output:
+        f"{OUT}/report/capstone-report.html",
+    shell:
+        """
+        quarto render {input.qmd}
+        mkdir -p $(dirname {output})
+        mv reports/capstone-report.html {output}
+        """
