@@ -1,0 +1,18 @@
+# Settings for the CBIO 7501 capstone: a small, fast test of HG008
+# somatic calling on GRCh38, on one short stretch of chr22.
+# Read by the download script (step 1) and workflow/Snakefile.
+
+# The stretch: 1 kb before the first and 1 kb after the last of the
+# 13 known mutations in chr22 34-35 Mb (decided 26 Nov 2026).
+region: "chr22:34127223-34838003"
+
+# Where the data comes from (NIST / Genome in a Bottle, public).
+nist:
+  tumour_bam: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/BCM_Illumina-WGS_20240313/HG008-T_Illumina_195x_GRCh38-GIABv3.bam"
+  normal_bam: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/BCM_Illumina-WGS_20240313/HG008-N-D_Illumina_169x_GRCh38-GIABv3.bam"
+  reference: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
+  benchmark_vcf: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/NIST_HG008-T_somatic-smvar_DraftBenchmark_V0.4-20261006/GRCh38/HG008-T_somatic_smvar_benchmark_v0.4_GRCh38_tumorvariants.vcf.gz"
+  benchmark_bed: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/NIST_HG008-T_somatic-smvar_DraftBenchmark_V0.4-20261006/GRCh38/HG008-T_somatic_smvar_benchmark_v0.4_GRCh38_all.bed"
+
+# Where the fetched files are saved (inside data/, ignored by Git).
+data_dir: "data/raw/test"
