@@ -15,7 +15,7 @@ REF = f"{OUT}/reference/{PIECE}.fa"
 
 rule all:
     input:
-        f"{OUT}/calls/pass.vcf.gz",
+        f"{OUT}/comparison/summary.tsv",
 
 
 # Step 1: fetch the test data from NIST (runs only if files are missing)
@@ -117,3 +117,20 @@ rule filter:
         gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.filtered}
         gatk SelectVariants -R {input.ref} -V {output.filtered} --exclude-filtered -O {output.passed}
         """
+
+
+# Step 6: compare PASS calls with NIST's known mutations (trusted regions only).
+rule compare:
+    input:
+        calls=f"{OUT}/calls/pass.vcf.gz",
+        known=f"{DATA}/known_mutations.vcf",
+        trusted=f"{DATA}/trusted_regions.bed",
+    output:
+        table=f"{OUT}/comparison/comparison.tsv",
+        summary=f"{OUT}/comparison/summary.tsv",
+    params:
+        region=config["region"],
+        outdir=f"{OUT}/comparison",
+    shell:
+        "python scripts/compare_calls.py {input.calls} {input.known} {input.trusted} "
+        "{params.region} {params.outdir}"
