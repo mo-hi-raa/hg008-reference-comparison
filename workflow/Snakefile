@@ -1,0 +1,50 @@
+# Snakemake workflow for the CBIO 7501 capstone (chr22 test version).
+# One rule per step of the flowchart.
+# Run: pixi run -e capstone snakemake --cores 4
+
+configfile: "config/config.yaml"
+
+DATA = config["data_dir"]                    # data/raw/test (fetched from NIST)
+OUT = "results/capstone"                     # everything this workflow makes
+SAMPLES = ["HG008-T", "HG008-N-D"]           # tumour, normal
+PIECE = config["region"].replace(":", "_").replace("-", "_")   # chr22_34127223_34838003
+REF = f"{OUT}/reference/{PIECE}.fa"
+
+
+rule all:
+    input:
+        f"{REF}.bwt",
+        f"{OUT}/reference/{PIECE}.dict",
+
+
+# Step 1: fetch the test data from NIST (runs only if files are missing)
+rule download:
+    output:
+        expand(f"{DATA}/{{sample}}_R{{read}}.fq.gz", sample=SAMPLES, read=[1, 2]),
+        f"{DATA}/reference.fa",
+        f"{DATA}/known_mutations.vcf",
+        f"{DATA}/trusted_regions.bed",
+    shell:
+        "python scripts/download_test_data.py"
+
+
+# Step 2: prepare the reference piece.
+# The piece is renamed from chr22:34127223-34838003 to chr22_34127223_34838003,
+# because GATK can misread a colon inside a sequence name.
+rule prepare_reference:
+    input:
+        f"{DATA}/reference.fa",
+    output:
+        fasta=REF,
+        fai=f"{REF}.fai",
+        dict=f"{OUT}/reference/{PIECE}.dict",
+        bwa=f"{REF}.bwt",
+    params:
+        name=PIECE,
+    shell:
+        """
+        sed 's/^>.*/>{params.name}/' {input} > {output.fasta}
+        samtools faidx {output.fasta}
+        gatk CreateSequenceDictionary -R {output.fasta} -O {output.dict}
+        bwa index {output.fasta}
+        """
