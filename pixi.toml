@@ -19,9 +19,6 @@ papermill = ">=2.6"   # Quarto needs it for report parameters (-P)
 
 [tasks]
 check = { cmd = "python --version && quarto --version", description = "Check that the tools work" }
-# `reproduce` must rebuild every result from the raw data with one command.
-# The lessons replace this placeholder with real steps.
-reproduce = { cmd = "python -c \"print('Nothing to reproduce yet: add your steps to the reproduce task in pixi.toml')\"", description = "Rebuild all results from raw data" }
 download = { cmd = "bash scripts/s01_download.sh", description = "Download the raw data listed in metadata/sources.tsv" }
 
 [feature.pipeline]
@@ -52,3 +49,6 @@ samtools = ">=1.25,<2"
 gatk4 = ">=4.6.2.0,<5"
 snakemake = ">=9.24.0,<10"
 pyyaml = ">=6.0.3,<7"
+
+[feature.capstone.tasks]
+reproduce = { cmd = "snakemake --cores 4", description = "CBIO 7501 capstone: fetch the chr22 test data from NIST, align, call, compare, render the report" }

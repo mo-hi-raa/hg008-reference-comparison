@@ -1,0 +1,106 @@
+---
+title: "HG008 somatic mutations on a short stretch of chr22 (GRCh38, Mutect2)"
+subtitle: "CBIO 7501 capstone: chr22 test version of the HG008 reference comparison"
+author: "Mohiraa Shafreen"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: true
+execute:
+  echo: false
+---
+
+```{python}
+import gzip
+import pandas as pd
+import yaml
+
+config = yaml.safe_load(open("config/config.yaml"))
+region = config["region"]
+offset = int(region.split(":")[1].split("-")[0]) - 1
+summary = pd.read_csv("results/capstone/comparison/summary.tsv", sep="\t").iloc[0]
+table = pd.read_csv("results/capstone/comparison/comparison.tsv", sep="\t")
+```
+
+## What this is
+
+A small, fast version of the HG008 reference comparison. Somatic mutations
+(changes found in the tumour but not in the normal) are called with Mutect2 on
+one short stretch of chr22, **`{python} region`**, and compared with NIST's
+list of known mutations in that stretch.
+
+## Data
+
+All data is fetched from NIST (Genome in a Bottle) when the workflow runs;
+only the stretch is taken, never the whole genome:
+
+- Reads: BCM Illumina whole-genome sequencing of HG008-T (tumour) and
+  HG008-N-D (normal), from NIST's GRCh38-GIABv3 BAM files
+- Reference: GIAB GRCh38 v3, the piece matching the stretch
+- Known mutations and trusted regions: NIST HG008-T somatic small variant
+  benchmark v0.4 (GRCh38)
+
+## Result
+
+```{python}
+pd.DataFrame({
+    "Known mutations (trusted regions)": [int(summary.known)],
+    "Our PASS calls": [int(summary.calls)],
+    "Found": [int(summary.found)],
+    "Missed": [int(summary.missed)],
+    "Extra": [int(summary.extra)],
+    "Recall": [f"{summary.recall:.2f}"],
+    "Precision": [f"{summary.precision:.2f}"],
+})
+```
+
+Mutect2 found **`{python} int(summary.found)` of `{python} int(summary.known)`**
+known mutations (recall `{python} f"{summary.recall:.2f}"`), and
+`{python} int(summary.found)` of its `{python} int(summary.calls)` PASS calls
+are known mutations (precision `{python} f"{summary.precision:.2f}"`).
+
+- **Recall** = found ÷ known: the share of real mutations that were called
+- **Precision** = found ÷ calls: the share of calls that are real
+
+### Every mutation
+
+```{python}
+table.assign(ref=table.ref.where(table.ref.str.len() <= 10, table.ref.str[:10] + "..."), alt=table.alt.where(table.alt.str.len() <= 10, table.alt.str[:10] + "..."))
+```
+
+## The missed mutations: filtered out, or never called?
+
+```{python}
+calls = []
+with gzip.open("results/capstone/calls/filtered.vcf.gz", "rt") as handle:
+    for line in handle:
+        if line.startswith("#"):
+            continue
+        f = line.split("\t")
+        calls.append((int(f[1]) + offset, f[3], f[4], f[6]))
+
+missed = table[table.status == "missed"]
+exact = [m for m in missed.itertuples() if any(c[:3] == (m.pos, m.ref, m.alt) for c in calls)]
+rows = []
+for m in missed.itertuples():
+    near = [c for c in calls if abs(c[0] - m.pos) <= 50]
+    rows.append({
+        "Missed position": m.pos,
+        "Ref": m.ref if len(m.ref) <= 10 else m.ref[:10] + "...",
+        "Alt": m.alt if len(m.alt) <= 10 else m.alt[:10] + "...",
+        "Mutect2 calls within 50 bases (filter)": "; ".join(
+            f"{p} {r}>{a} ({flt})" for p, r, a, flt in near) or "none",
+    })
+pd.DataFrame(rows)
+```
+
+Of the `{python} len(missed)` missed mutations, `{python} len(exact)` were
+called by Mutect2 and then removed by filtering. The others were never
+proposed as candidates, so they were not lost to filtering.
+
+## How to reproduce
+
+```bash
+pixi run reproduce
+```

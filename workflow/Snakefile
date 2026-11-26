@@ -1,0 +1,153 @@
+# Snakemake workflow for the CBIO 7501 capstone (chr22 test version).
+# One rule per step of the flowchart.
+# Run: pixi run -e capstone snakemake --cores 4
+
+configfile: "config/config.yaml"
+
+DATA = config["data_dir"]                    # data/raw/test (fetched from NIST)
+OUT = "results/capstone"                     # everything this workflow makes
+TUMOUR = "HG008-T"
+NORMAL = "HG008-N-D"
+SAMPLES = [TUMOUR, NORMAL]
+PIECE = config["region"].replace(":", "_").replace("-", "_")   # chr22_34127223_34838003
+REF = f"{OUT}/reference/{PIECE}.fa"
+
+
+rule all:
+    input:
+        f"{OUT}/report/capstone-report.html",
+
+
+# Step 1: fetch the test data from NIST (runs only if files are missing)
+rule download:
+    output:
+        expand(f"{DATA}/{{sample}}_R{{read}}.fq.gz", sample=SAMPLES, read=[1, 2]),
+        f"{DATA}/reference.fa",
+        f"{DATA}/known_mutations.vcf",
+        f"{DATA}/trusted_regions.bed",
+    shell:
+        "python scripts/download_test_data.py"
+
+
+# Step 2: prepare the reference piece.
+# The piece is renamed from chr22:34127223-34838003 to chr22_34127223_34838003,
+# because GATK can misread a colon inside a sequence name.
+rule prepare_reference:
+    input:
+        f"{DATA}/reference.fa",
+    output:
+        fasta=REF,
+        fai=f"{REF}.fai",
+        dict=f"{OUT}/reference/{PIECE}.dict",
+        bwa=f"{REF}.bwt",
+    params:
+        name=PIECE,
+    shell:
+        """
+        sed 's/^>.*/>{params.name}/' {input} > {output.fasta}
+        samtools faidx {output.fasta}
+        gatk CreateSequenceDictionary -R {output.fasta} -O {output.dict}
+        bwa index {output.fasta}
+        """
+
+
+# Step 3: align each sample's reads to the reference piece.
+# -R adds a read group: the sample name Mutect2 uses to tell tumour from normal.
+rule align:
+    input:
+        r1=f"{DATA}/{{sample}}_R1.fq.gz",
+        r2=f"{DATA}/{{sample}}_R2.fq.gz",
+        ref=REF,
+        bwa=f"{REF}.bwt",
+    output:
+        f"{OUT}/align/{{sample}}.unsorted.bam",
+    threads: 4
+    shell:
+        "bwa mem -t {threads} -R '@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:ILLUMINA' "
+        "{input.ref} {input.r1} {input.r2} | samtools view -b -o {output} -"
+
+
+# Step 4: mark duplicates, sort by position, index.
+# fixmate -m adds the mate information that markdup needs.
+rule markdup:
+    input:
+        f"{OUT}/align/{{sample}}.unsorted.bam",
+    output:
+        bam=f"{OUT}/align/{{sample}}.bam",
+        bai=f"{OUT}/align/{{sample}}.bam.bai",
+    threads: 4
+    shell:
+        """
+        samtools fixmate -m {input} - | samtools sort -@ {threads} - | samtools markdup - {output.bam}
+        samtools index {output.bam}
+        """
+
+
+# Step 5a: call somatic mutations, tumour against normal (Mutect2).
+rule call:
+    input:
+        ref=REF,
+        fai=f"{REF}.fai",
+        dict=f"{OUT}/reference/{PIECE}.dict",
+        tumour=f"{OUT}/align/{TUMOUR}.bam",
+        tumour_bai=f"{OUT}/align/{TUMOUR}.bam.bai",
+        normal=f"{OUT}/align/{NORMAL}.bam",
+        normal_bai=f"{OUT}/align/{NORMAL}.bam.bai",
+    output:
+        vcf=f"{OUT}/calls/unfiltered.vcf.gz",
+        stats=f"{OUT}/calls/unfiltered.vcf.gz.stats",
+    params:
+        normal=NORMAL,
+    shell:
+        "gatk Mutect2 -R {input.ref} -I {input.tumour} -I {input.normal} "
+        "-normal {params.normal} -O {output.vcf}"
+
+
+# Step 5b: mark unreliable calls (FilterMutectCalls), then keep only PASS calls.
+rule filter:
+    input:
+        ref=REF,
+        vcf=f"{OUT}/calls/unfiltered.vcf.gz",
+        stats=f"{OUT}/calls/unfiltered.vcf.gz.stats",
+    output:
+        filtered=f"{OUT}/calls/filtered.vcf.gz",
+        passed=f"{OUT}/calls/pass.vcf.gz",
+    shell:
+        """
+        gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.filtered}
+        gatk SelectVariants -R {input.ref} -V {output.filtered} --exclude-filtered -O {output.passed}
+        """
+
+
+# Step 6: compare PASS calls with NIST's known mutations (trusted regions only).
+rule compare:
+    input:
+        calls=f"{OUT}/calls/pass.vcf.gz",
+        known=f"{DATA}/known_mutations.vcf",
+        trusted=f"{DATA}/trusted_regions.bed",
+    output:
+        table=f"{OUT}/comparison/comparison.tsv",
+        summary=f"{OUT}/comparison/summary.tsv",
+    params:
+        region=config["region"],
+        outdir=f"{OUT}/comparison",
+    shell:
+        "python scripts/compare_calls.py {input.calls} {input.known} {input.trusted} "
+        "{params.region} {params.outdir}"
+
+
+# Step 7: render the report (Quarto). Every number is computed when it renders.
+rule report:
+    input:
+        qmd="reports/capstone-report.qmd",
+        summary=f"{OUT}/comparison/summary.tsv",
+        table=f"{OUT}/comparison/comparison.tsv",
+        filtered=f"{OUT}/calls/filtered.vcf.gz",
+    output:
+        f"{OUT}/report/capstone-report.html",
+    shell:
+        """
+        quarto render {input.qmd}
+        mkdir -p $(dirname {output})
+        mv reports/capstone-report.html {output}
+        """
