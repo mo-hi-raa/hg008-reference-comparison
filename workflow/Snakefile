@@ -13,8 +13,8 @@ REF = f"{OUT}/reference/{PIECE}.fa"
 
 rule all:
     input:
-        f"{REF}.bwt",
         f"{OUT}/reference/{PIECE}.dict",
+        expand(f"{OUT}/align/{{sample}}.bam.bai", sample=SAMPLES),
 
 
 # Step 1: fetch the test data from NIST (runs only if files are missing)
@@ -47,4 +47,36 @@ rule prepare_reference:
         samtools faidx {output.fasta}
         gatk CreateSequenceDictionary -R {output.fasta} -O {output.dict}
         bwa index {output.fasta}
+        """
+
+
+# Step 3: align each sample's reads to the reference piece.
+# -R adds a read group: the sample name Mutect2 uses to tell tumour from normal.
+rule align:
+    input:
+        r1=f"{DATA}/{{sample}}_R1.fq.gz",
+        r2=f"{DATA}/{{sample}}_R2.fq.gz",
+        ref=REF,
+        bwa=f"{REF}.bwt",
+    output:
+        f"{OUT}/align/{{sample}}.unsorted.bam",
+    threads: 4
+    shell:
+        "bwa mem -t {threads} -R '@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:ILLUMINA' "
+        "{input.ref} {input.r1} {input.r2} | samtools view -b -o {output} -"
+
+
+# Step 4: mark duplicates, sort by position, index.
+# fixmate -m adds the mate information that markdup needs.
+rule markdup:
+    input:
+        f"{OUT}/align/{{sample}}.unsorted.bam",
+    output:
+        bam=f"{OUT}/align/{{sample}}.bam",
+        bai=f"{OUT}/align/{{sample}}.bam.bai",
+    threads: 4
+    shell:
+        """
+        samtools fixmate -m {input} - | samtools sort -@ {threads} - | samtools markdup - {output.bam}
+        samtools index {output.bam}
         """
