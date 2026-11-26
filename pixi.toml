@@ -41,3 +41,14 @@ k8 = ">=1.2,<2"
 
 [environments]
 pipeline = ["pipeline"]
+capstone = ["capstone"]
+
+[feature.capstone]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+
+[feature.capstone.dependencies]
+bwa = ">=0.7.19,<0.8"
+samtools = ">=1.25,<2"
+gatk4 = ">=4.6.2.0,<5"
+snakemake = ">=9.24.0,<10"
+pyyaml = ">=6.0.3,<7"
