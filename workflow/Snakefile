@@ -6,15 +6,16 @@ configfile: "config/config.yaml"
 
 DATA = config["data_dir"]                    # data/raw/test (fetched from NIST)
 OUT = "results/capstone"                     # everything this workflow makes
-SAMPLES = ["HG008-T", "HG008-N-D"]           # tumour, normal
+TUMOUR = "HG008-T"
+NORMAL = "HG008-N-D"
+SAMPLES = [TUMOUR, NORMAL]
 PIECE = config["region"].replace(":", "_").replace("-", "_")   # chr22_34127223_34838003
 REF = f"{OUT}/reference/{PIECE}.fa"
 
 
 rule all:
     input:
-        f"{OUT}/reference/{PIECE}.dict",
-        expand(f"{OUT}/align/{{sample}}.bam.bai", sample=SAMPLES),
+        f"{OUT}/calls/pass.vcf.gz",
 
 
 # Step 1: fetch the test data from NIST (runs only if files are missing)
@@ -79,4 +80,40 @@ rule markdup:
         """
         samtools fixmate -m {input} - | samtools sort -@ {threads} - | samtools markdup - {output.bam}
         samtools index {output.bam}
+        """
+
+
+# Step 5a: call somatic mutations, tumour against normal (Mutect2).
+rule call:
+    input:
+        ref=REF,
+        fai=f"{REF}.fai",
+        dict=f"{OUT}/reference/{PIECE}.dict",
+        tumour=f"{OUT}/align/{TUMOUR}.bam",
+        tumour_bai=f"{OUT}/align/{TUMOUR}.bam.bai",
+        normal=f"{OUT}/align/{NORMAL}.bam",
+        normal_bai=f"{OUT}/align/{NORMAL}.bam.bai",
+    output:
+        vcf=f"{OUT}/calls/unfiltered.vcf.gz",
+        stats=f"{OUT}/calls/unfiltered.vcf.gz.stats",
+    params:
+        normal=NORMAL,
+    shell:
+        "gatk Mutect2 -R {input.ref} -I {input.tumour} -I {input.normal} "
+        "-normal {params.normal} -O {output.vcf}"
+
+
+# Step 5b: mark unreliable calls (FilterMutectCalls), then keep only PASS calls.
+rule filter:
+    input:
+        ref=REF,
+        vcf=f"{OUT}/calls/unfiltered.vcf.gz",
+        stats=f"{OUT}/calls/unfiltered.vcf.gz.stats",
+    output:
+        filtered=f"{OUT}/calls/filtered.vcf.gz",
+        passed=f"{OUT}/calls/pass.vcf.gz",
+    shell:
+        """
+        gatk FilterMutectCalls -R {input.ref} -V {input.vcf} -O {output.filtered}
+        gatk SelectVariants -R {input.ref} -V {output.filtered} --exclude-filtered -O {output.passed}
         """
