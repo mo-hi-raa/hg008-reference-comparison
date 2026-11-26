@@ -11,15 +11,15 @@
 #
 # Build from the project folder (lesson 08):
 #   docker build --platform linux/amd64 -f containers/Dockerfile \
-#     --build-arg ENV_NAME=default -t PROJECT:0.1.0 .
+#     -t hg008-capstone:0.1.0 .
 # Run a command with the project folder mounted at /work:
-#   docker run --rm -v "$PWD":/work -w /work PROJECT:0.1.0 python --version
+#   docker run --rm -v "$PWD":/work -w /work hg008-capstone:0.1.0 snakemake -n
 
-ARG PIXI_VERSION=0.83.0
+ARG PIXI_VERSION=0.85.0
 
 FROM ghcr.io/prefix-dev/pixi:${PIXI_VERSION} AS build
 # Which Pixi environment to put in the image (see [environments] in pixi.toml)
-ARG ENV_NAME=default
+ARG ENV_NAME=capstone
 WORKDIR /opt/project
 COPY pixi.toml pixi.lock ./
 # --locked: fail if pixi.lock does not match pixi.toml
@@ -31,7 +31,7 @@ RUN pixi shell-hook --environment ${ENV_NAME} --shell bash > /shell-hook.sh \
  && printf 'exec "$@"\n' >> /entrypoint.sh
 
 FROM ubuntu:24.04 AS production
-ARG ENV_NAME=default
+ARG ENV_NAME=capstone
 LABEL org.opencontainers.image.description="Software environment '${ENV_NAME}' of this project, built from pixi.lock"
 # The environment must keep the same path (prefix) as in the build stage:
 # environments cannot be moved.
