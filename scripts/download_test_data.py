@@ -117,6 +117,9 @@ def check_checksums():
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    for name in FILES:                     # allow overwriting a previous fetch
+        if (OUT / name).exists():
+            (OUT / name).chmod(0o644)
     print("Fetching tumour reads...")
     fetch_reads(NIST["tumour_bam"], "HG008-T")
     print("Fetching normal reads...")
@@ -127,6 +130,8 @@ def main():
     fetch_known_mutations()
     fetch_trusted_regions()
     check_checksums()
+    for name in FILES:                     # raw data is read-only (lesson 02)
+        (OUT / name).chmod(0o444)
     print(f"Done: test data is in {OUT.relative_to(ROOT)}")
 
 
