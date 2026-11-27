@@ -1,4 +1,10 @@
-# HG008 somatic mutations on chr22 (CBIO 7501 capstone)
+# hg008-reference-comparison
+
+Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads.
+
+Work in progress. The CBIO 7501 capstone below is a small test version of it that anyone can rerun in a few minutes.
+
+## CBIO 7501 capstone: HG008 somatic mutations on chr22
 
 **Description:** A small test of somatic variant calling on HG008, a pancreatic tumour and
 matched normal from Genome in a Bottle: reads from one stretch of chr22
@@ -16,7 +22,7 @@ benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0.
 
 **Author:** Mohiraa Shafreen (ORCID 0009-0001-8445-6317). **Publication:** none yet.
 
-## Reproduce
+### Reproduce
 
 Needs [Pixi](https://pixi.prefix.dev/latest/) and internet. Linux or macOS (Windows: WSL2).
 
@@ -32,14 +38,14 @@ same command on every push. Also: `pixi run run-nextflow` (same steps in Nextflo
 `pixi run compare-workflows` (checks both give the same calls). A container can be built
 from `containers/Dockerfile`.
 
-## Hardware
+### Hardware
 
 Measured on 27 Nov 2026 (Apple M5 Pro, 4 cores): 2.0 GB for the software, 109 MB data,
 about 170 MB results, peak memory about 0.6 GB. About 5.5 minutes, plus 2 minutes for the
 first download. Mutect2 is slow on Apple-chip Macs (about 4 minutes) because GATK's fast
 library is Intel-only; on a Linux server it took about 30 seconds.
 
-## Outputs
+### Outputs
 
 | Path | Content |
 |------|---------|
@@ -50,7 +56,7 @@ library is Intel-only; on a Linux server it took about 30 seconds.
 
 Expected: 13 known mutations, 8 PASS calls, 7 found, 6 missed, 1 extra.
 
-## Capstone files
+### Capstone files
 
 `config/config.yaml` (stretch, NIST addresses), `scripts/download_test_data.py` (step 1),
 `metadata/capstone_checksums.sha256`, `workflow/Snakefile` (steps 1-7),
@@ -58,22 +64,21 @@ Expected: 13 known mutations, 8 PASS calls, 7 found, 6 missed, 1 extra.
 `reports/capstone-report.qmd` (step 7), `notebooks/capstone-explore-calls.ipynb`,
 `containers/Dockerfile`. Everything else in the repository is not part of the capstone.
 
-## Software versions
+### Software versions
 
 From `pixi.lock`: bwa 0.7.19, samtools 1.25, GATK 4.6.2.0 on all platforms. Snakemake is
 9.24.0 on macOS and 9.27.2 on Linux; it only runs the steps.
 
-## Contact
+### Contact
 
 Open an issue on GitHub or write to mohiraa.shafreen@mbzuai.ac.ae.
 
 ---
 
-# hg008-reference-comparison
+## Research project
 
-Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads
 
-## Study design
+### Study design
 
 - Data: HG008 pancreatic cancer tumour and matched normal (Cancer Genome in a Bottle, NIST)
 - References: GRCh38, T2T-CHM13, HPRC pangenome graph, HG008 donor-specific assembly
@@ -82,20 +87,20 @@ Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome aff
 
 Author: Mohiraa Shafreen M ([ORCID 0009-0001-8445-6317](https://orcid.org/0009-0001-8445-6317))
 
-## Reproduce the results
+### Reproduce the results
 
 You need [Pixi](https://pixi.prefix.dev/latest/) and an internet connection.
 Then, from this folder:
 
 ```bash
 pixi install          # builds the exact environment recorded in pixi.lock
-pixi run reproduce    # downloads the raw data and rebuilds every result
+pixi run reproduce    # runs the CBIO 7501 capstone (see above)
 ```
 
 `pixi run reproduce` must work on a fresh clone of this repository. A GitHub
 Action (`.github/workflows/reproduce.yml`) checks that on every push.
 
-## What is where
+### What is where
 
 | Folder | What goes in it | Rule |
 |--------|------------------|------|
@@ -114,23 +119,23 @@ Action (`.github/workflows/reproduce.yml`) checks that on every push.
 
 Each folder has its own `README.md` with more detail.
 
-## Data
+### Data
 
 All raw data are public. They come from the Genome in a Bottle (GIAB) Consortium at NIST and from the Telomere-to-Telomere (T2T) Consortium.
 
 - HG008 somatic small-variant benchmark v0.4 (NIST, 2026-10-06): true somatic variants (VCF) and trusted regions (BED) on GRCh38, T2T-CHM13v2 and the HG008-N v6.3 assembly.
 - Reference genomes: GRCh38 (GIAB v3 build), T2T-CHM13v2.0 (analysis set: chrY PARs masked, rCRS mitochondrion) and the HG008-N v6.3 donor-specific assembly.
-- Sequencing reads: to be added.
+- Sequencing reads: BCM Illumina whole-genome sequencing of HG008-T and HG008-N-D (NIST).
 
 Every file, its web address and the provider's checksum are listed in `metadata/sources.tsv`. Download them with `pixi run download`, then check them with `shasum -a 256 -c metadata/checksums.sha256`.
 
 Data citations: McDaniel et al. 2025, Scientific Data, https://doi.org/10.1038/s41597-025-05438-2 (HG008 data); Wagner et al. 2026, bioRxiv, https://doi.org/10.64898/2026.05.01.722316 (benchmark); Nurk et al. 2022, Science, https://doi.org/10.1126/science.abj6987 (T2T-CHM13). Data courtesy of the National Institute of Standards and Technology (NIST).
 
-## How to cite
+### How to cite
 
 See `CITATION.cff`. GitHub shows a "Cite this repository" button for it.
 
-## License
+### License
 
 MIT, see `LICENSE`.
 
