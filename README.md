@@ -14,8 +14,6 @@ of chr22, and checks the calls against NIST's known mutations.
 **Data and license:** public Genome in a Bottle data (NIST): reads, GRCh38 reference and
 benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0.
 
-**Why private:** unpublished work in progress; shared with the instructor and my partner.
-
 **Author:** Mohiraa Shafreen (ORCID 0009-0001-8445-6317). **Publication:** none yet.
 
 ## Reproduce
