@@ -10,13 +10,16 @@ Work in progress. The CBIO 7501 capstone below is a small test version of it tha
 
 ## CBIO 7501 capstone: HG008 somatic mutations on chr22
 
-| | |
-|---|---|
-| **Description** | A small test of somatic variant calling on HG008, a pancreatic tumour and matched normal from Genome in a Bottle: reads from one stretch of chr22 (chr22:34,127,223-34,838,003) are aligned to GRCh38, mutations are called with Mutect2, and the calls are checked against NIST's benchmark. |
-| **Scientific question** | How does the reference genome used for alignment affect somatic mutation calling in HG008? The capstone covers one reference, GRCh38, on a short stretch of chr22, and checks the calls against NIST's known mutations. |
-| **Repository** | https://github.com/mo-hi-raa/hg008-reference-comparison |
-| **Data and license** | Public Genome in a Bottle data (NIST): reads, GRCh38 reference and benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0. |
-| **Publication** | None yet. |
+> [!NOTE]
+> **Description:** A small test of somatic variant calling on HG008, a pancreatic tumour and matched normal from Genome in a Bottle: reads from one stretch of chr22 (chr22:34,127,223-34,838,003) are aligned to GRCh38, mutations are called with Mutect2, and the calls are checked against NIST's benchmark.
+
+> [!IMPORTANT]
+> **Scientific question:** How does the reference genome used for alignment affect somatic mutation calling in HG008? The capstone covers one reference, GRCh38, on a short stretch of chr22, and checks the calls against NIST's known mutations.
+
+> [!TIP]
+> **Data and license:** Public Genome in a Bottle data (NIST): reads, GRCh38 reference and benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0.
+
+**Repository:** https://github.com/mo-hi-raa/hg008-reference-comparison · **Publication:** none yet
 
 ### Reproduce
 
