@@ -1,26 +1,22 @@
 # hg008-reference-comparison
 
+[![Reproduce](https://github.com/mo-hi-raa/hg008-reference-comparison/actions/workflows/reproduce.yml/badge.svg)](https://github.com/mo-hi-raa/hg008-reference-comparison/actions/workflows/reproduce.yml) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+
+Author: Mohiraa Shafreen ([ORCID 0009-0001-8445-6317](https://orcid.org/0009-0001-8445-6317))
+
 Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads.
 
 Work in progress. The CBIO 7501 capstone below is a small test version of it that anyone can rerun in a few minutes.
 
 ## CBIO 7501 capstone: HG008 somatic mutations on chr22
 
-**Description:** A small test of somatic variant calling on HG008, a pancreatic tumour and
-matched normal from Genome in a Bottle: reads from one stretch of chr22
-(chr22:34,127,223-34,838,003) are aligned to GRCh38, mutations are called with Mutect2,
-and the calls are checked against NIST's benchmark.
-
-**Scientific question:** How does the reference genome used for alignment affect somatic
-mutation calling in HG008? The capstone covers one reference, GRCh38, on a short stretch
-of chr22, and checks the calls against NIST's known mutations.
-
-**Repository:** https://github.com/mo-hi-raa/hg008-reference-comparison
-
-**Data and license:** public Genome in a Bottle data (NIST): reads, GRCh38 reference and
-benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0.
-
-**Author:** Mohiraa Shafreen (ORCID 0009-0001-8445-6317). **Publication:** none yet.
+| | |
+|---|---|
+| **Description** | A small test of somatic variant calling on HG008, a pancreatic tumour and matched normal from Genome in a Bottle: reads from one stretch of chr22 (chr22:34,127,223-34,838,003) are aligned to GRCh38, mutations are called with Mutect2, and the calls are checked against NIST's benchmark. |
+| **Scientific question** | How does the reference genome used for alignment affect somatic mutation calling in HG008? The capstone covers one reference, GRCh38, on a short stretch of chr22, and checks the calls against NIST's known mutations. |
+| **Repository** | https://github.com/mo-hi-raa/hg008-reference-comparison |
+| **Data and license** | Public Genome in a Bottle data (NIST): reads, GRCh38 reference and benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0. |
+| **Publication** | None yet. |
 
 ### Reproduce
 
@@ -85,7 +81,6 @@ Open an issue on GitHub or write to mohiraa.shafreen@mbzuai.ac.ae.
 - Reads: short (Illumina) and long
 - Scored against the HG008 somatic benchmark
 
-Author: Mohiraa Shafreen M ([ORCID 0009-0001-8445-6317](https://orcid.org/0009-0001-8445-6317))
 
 ### Reproduce the results
 
