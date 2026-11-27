@@ -52,6 +52,6 @@ pyyaml = ">=6.0.3,<7"
 nextflow = ">=26.10.7,<27"
 
 [feature.capstone.tasks]
-reproduce = { cmd = "snakemake --cores 4", description = "CBIO 7501 capstone: fetch the chr22 test data from NIST, align, call, compare, render the report" }
+reproduce = { cmd = "snakemake --cores 4 && python scripts/print_summary.py", description = "CBIO 7501 capstone: fetch the chr22 test data from NIST, align, call, compare, render the report" }
 run-nextflow = { cmd = "snakemake --cores 1 download && nextflow run workflow/nextflow/main.nf -resume", description = "Capstone steps 2-6 with Nextflow (fetches the test data first if missing)" }
 compare-workflows = { cmd = "bash scripts/compare_workflows.sh", depends-on = ["reproduce", "run-nextflow"], description = "Check that Snakemake and Nextflow give the same PASS calls" }
