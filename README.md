@@ -2,7 +2,7 @@
 
 [![Reproduce](https://github.com/mo-hi-raa/hg008-reference-comparison/actions/workflows/reproduce.yml/badge.svg)](https://github.com/mo-hi-raa/hg008-reference-comparison/actions/workflows/reproduce.yml) ![License: MIT](https://img.shields.io/badge/license-MIT-blue) [![DOI sandbox](https://img.shields.io/badge/DOI%20sandbox-10.5072%2Fzenodo.650404-blue)](https://sandbox.zenodo.org/records/650404)
 
-Author: Mohiraa Shafreen ([ORCID 0009-0001-8445-6317](https://orcid.org/0009-0001-8445-6317))
+Author: Mohiraa Shafreen, ORCID: [0009-0001-8445-6317](https://orcid.org/0009-0001-8445-6317)
 
 Release DOI (Zenodo sandbox, v1.0.1): [10.5072/zenodo.650404](https://sandbox.zenodo.org/records/650404)
 
