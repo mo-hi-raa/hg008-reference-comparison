@@ -104,3 +104,36 @@ proposed as candidates, so they were not lost to filtering.
 ```bash
 pixi run reproduce
 ```
+
+## Software versions
+
+Read from the tools themselves when this report was rendered.
+
+```{python}
+import re
+import subprocess
+import sys
+
+
+def tool_output(command):
+    result = subprocess.run(command, capture_output=True, text=True)
+    return result.stdout + result.stderr
+
+
+def find(pattern, text):
+    match = re.search(pattern, text)
+    return match.group(1) if match else "unknown"
+
+
+pd.DataFrame({
+    "Tool": ["bwa", "samtools", "GATK", "Snakemake", "Python", "pandas"],
+    "Version": [
+        find(r"Version: (\S+)", tool_output(["bwa"])),
+        find(r"samtools (\S+)", tool_output(["samtools", "--version"])),
+        find(r"\(GATK\) v(\S+)", tool_output(["gatk", "--version"])),
+        tool_output(["snakemake", "--version"]).strip(),
+        sys.version.split()[0],
+        pd.__version__,
+    ],
+})
+```

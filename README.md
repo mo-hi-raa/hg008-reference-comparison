@@ -1,3 +1,76 @@
+# HG008 somatic mutations on chr22 (CBIO 7501 capstone)
+
+**Description:** A small test of somatic variant calling on HG008, a pancreatic tumour and
+matched normal from Genome in a Bottle: reads from one stretch of chr22
+(chr22:34,127,223-34,838,003) are aligned to GRCh38, mutations are called with Mutect2,
+and the calls are checked against NIST's benchmark.
+
+**Scientific question:** How does the reference genome used for alignment affect somatic
+mutation calling in HG008? The capstone covers one reference, GRCh38, on a short stretch
+of chr22, and checks the calls against NIST's known mutations.
+
+**Repository:** https://github.com/mo-hi-raa/hg008-reference-comparison
+
+**Data and license:** public Genome in a Bottle data (NIST): reads, GRCh38 reference and
+benchmark v0.4; no restrictions on use. Code MIT, report text CC BY 4.0.
+
+**Why private:** unpublished work in progress; shared with the instructor and my partner.
+
+**Author:** Mohiraa Shafreen (ORCID 0009-0001-8445-6317). **Publication:** none yet.
+
+## Reproduce
+
+Needs [Pixi](https://pixi.prefix.dev/latest/) and internet. Linux or macOS (Windows: WSL2).
+
+```bash
+git clone https://github.com/mo-hi-raa/hg008-reference-comparison.git
+cd hg008-reference-comparison
+pixi run reproduce
+```
+
+This installs the tool versions in `pixi.lock`, downloads the chr22 stretch from NIST,
+checks the checksums, runs the Snakemake workflow and renders the report. GitHub runs the
+same command on every push. Also: `pixi run run-nextflow` (same steps in Nextflow) and
+`pixi run compare-workflows` (checks both give the same calls). A container can be built
+from `containers/Dockerfile`.
+
+## Hardware
+
+Measured on 27 Nov 2026 (Apple M5 Pro, 4 cores): 2.0 GB for the software, 109 MB data,
+about 170 MB results, peak memory about 0.6 GB. About 5.5 minutes, plus 2 minutes for the
+first download. Mutect2 is slow on Apple-chip Macs (about 4 minutes) because GATK's fast
+library is Intel-only; on a Linux server it took about 30 seconds.
+
+## Outputs
+
+| Path | Content |
+|------|---------|
+| `results/capstone/report/capstone-report.html` | Report |
+| `results/capstone/calls/pass.vcf.gz` | PASS calls |
+| `results/capstone/comparison/summary.tsv` | Counts, recall, precision |
+| `results/capstone/comparison/comparison.tsv` | Each mutation: found, missed or extra |
+
+Expected: 13 known mutations, 8 PASS calls, 7 found, 6 missed, 1 extra.
+
+## Capstone files
+
+`config/config.yaml` (stretch, NIST addresses), `scripts/download_test_data.py` (step 1),
+`metadata/capstone_checksums.sha256`, `workflow/Snakefile` (steps 1-7),
+`workflow/nextflow/`, `scripts/compare_calls.py` (step 6),
+`reports/capstone-report.qmd` (step 7), `notebooks/capstone-explore-calls.ipynb`,
+`containers/Dockerfile`. Everything else in the repository is not part of the capstone.
+
+## Software versions
+
+From `pixi.lock`: bwa 0.7.19, samtools 1.25, GATK 4.6.2.0 on all platforms. Snakemake is
+9.24.0 on macOS and 9.27.2 on Linux; it only runs the steps.
+
+## Contact
+
+Open an issue on GitHub or write to mohiraa.shafreen@mbzuai.ac.ae.
+
+---
+
 # hg008-reference-comparison
 
 Compares how GRCh38, T2T-CHM13, a pangenome graph and the donor's own genome affect somatic variant calling in the HG008 tumour-normal pair, using short and long reads
